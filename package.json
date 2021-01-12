@@ -26,6 +26,7 @@
     "@nestjs/platform-express": "^7.5.1",
     "country-code-lookup": "0.0.18",
     "geoip-lite": "^1.4.2",
+    "is-valid-domain": "0.0.17",
     "puppeteer": "^5.5.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
