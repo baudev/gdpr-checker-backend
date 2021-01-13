@@ -28,7 +28,6 @@
     "@nestjs/typeorm": "^7.1.5",
     "country-code-lookup": "0.0.18",
     "geoip-lite": "^1.4.2",
-    "is-valid-domain": "0.0.17",
     "pg": "^8.5.1",
     "puppeteer": "^5.5.0",
     "reflect-metadata": "^0.1.13",

@@ -4,8 +4,6 @@ import {
   Injectable,
   PipeTransform,
 } from '@nestjs/common';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const isValidDomain = require('is-valid-domain');
 
 @Injectable()
 /**
@@ -13,15 +11,12 @@ const isValidDomain = require('is-valid-domain');
  */
 export class UrlPipe implements PipeTransform<string, string> {
   transform(value: string, metadata: ArgumentMetadata): string {
-    // if starts by scheme
-    const match = value.match(/^http(s)?:\/\/([0-9a-z.-_]+)$/);
-    if (match) {
-      value = value.replace(/http(s)?:\/\//, '');
-    }
+    const regex = /(http(s)?:\/\/)?([a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5})(\/.*)?$/m;
+    const matches = regex.exec(value);
     // check if valid domain
-    if (!isValidDomain(value, { subdomain: true })) {
+    if (matches == null) {
       throw new BadRequestException('Invalid link');
     }
-    return value;
+    return matches[3];
   }
 }
