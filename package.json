@@ -25,13 +25,16 @@
     "@nestjs/config": "^0.6.1",
     "@nestjs/core": "^7.5.1",
     "@nestjs/platform-express": "^7.5.1",
+    "@nestjs/typeorm": "^7.1.5",
     "country-code-lookup": "0.0.18",
     "geoip-lite": "^1.4.2",
     "is-valid-domain": "0.0.17",
+    "pg": "^8.5.1",
     "puppeteer": "^5.5.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^6.6.3"
+    "rxjs": "^6.6.3",
+    "typeorm": "^0.2.30"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.5.1",
