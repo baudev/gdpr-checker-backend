@@ -1,3 +1,6 @@
 export interface StreamObservableInterface {
-  isCompleted: boolean;
+  data: {
+    domain: string;
+    isCompleted: boolean;
+  };
 }
