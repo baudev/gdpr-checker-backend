@@ -19,7 +19,7 @@ export class UrlPipe implements PipeTransform<string, string> {
       value = value.replace(/http(s)?:\/\//, '');
     }
     // check if valid domain
-    if (!isValidDomain(value)) {
+    if (!isValidDomain(value, { subdomain: true })) {
       throw new BadRequestException('Invalid link');
     }
     return value;
