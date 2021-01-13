@@ -1,6 +1,10 @@
+import { Report } from '../report/report.entity';
+
 export interface StreamObservableInterface {
   data: {
-    domain: string;
     isCompleted: boolean;
+    status?: string;
+    report?: Report;
   };
+  type?: string;
 }

@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -29,10 +30,17 @@ export class Url {
   @ManyToOne(() => Report, (report) => report.urls)
   report: Report;
 
-  @ManyToMany(() => Cookie, (cookie) => cookie.urls, { cascade: true })
+  @ManyToMany(() => Cookie, (cookie) => cookie.urls, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinTable()
   cookies: Cookie[];
 
   addCookie(cookie: Cookie) {
+    if (!this.cookies) {
+      this.cookies = [];
+    }
     this.cookies.push(cookie);
   }
 

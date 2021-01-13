@@ -1,4 +1,11 @@
-import {Body, Controller, Param, ParseUUIDPipe, Post, Sse} from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Sse,
+} from '@nestjs/common';
 import { UrlPipe } from '../pipe/url.pipe';
 import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
@@ -20,30 +27,32 @@ export class ReportController {
   @Post()
   async createReport(
     @Body('domain', new UrlPipe()) domain: string,
-  ): Promise<Report> {
+  ): Promise<{ uuid: string, domain: string, updatedAt: Date }> {
     // we search if the domain has an existing entry in database
     let report = await this.reportRepository.findOne({ domain: domain });
     if (report === undefined) {
       // we need to create one
       report = new Report(domain);
+      report.updatedAt = new Date();
       report = await this.reportRepository.save(report);
     }
-    return report;
+    const { urls, createdAt, ...result } = report;
+    return result;
   }
 
   @Sse('/:uuid')
   getReport(
-    @Param('uuid', new ParseUUIDPipe()) domain: string,
+    @Param('uuid', new ParseUUIDPipe()) uuid: string,
   ): Observable<StreamObservableInterface> {
     // checks if there is a current observable for this domain
-    const existingObservable = this.streamService.getStreamObservableByKey(
-      domain,
+    const existingObservable = this.streamService.getStreamObservableByUuid(
+      uuid,
     );
     if (existingObservable) {
       return existingObservable;
     } else {
       // we need to create one
-      return this.streamService.createStreamObservableEntry(domain);
+      return this.streamService.createStreamObservableEntry(uuid);
     }
   }
 }

@@ -1,18 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { StreamObservableEntryInterface } from './streamObservableEntry.interface';
-import { Observable } from 'rxjs';
+import { EMPTY, observable, Observable, throwError } from 'rxjs';
 import { StreamObservableInterface } from './streamObservable.interface';
-import { share } from 'rxjs/operators';
+import { catchError, share } from 'rxjs/operators';
+import { ReportService } from '../report/report.service';
 
 @Injectable()
 export class StreamService {
   protected readonly streamObservableArray: StreamObservableEntryInterface[] = [];
 
+  constructor(private reportService: ReportService) {}
+
   /**
    * Returns the observable of the streamObservableEntry corresponding to the researched key
    * @param key
    */
-  getStreamObservableByKey(
+  getStreamObservableByUuid(
     key: string,
   ): Observable<StreamObservableInterface> | null {
     for (let i = 0; i < this.streamObservableArray.length; i++) {
@@ -25,19 +28,24 @@ export class StreamService {
 
   /**
    * Creates an observable for the key specified and adds an streamObservableEntry to streamObservableArray
-   * @param key
+   * @param uuid
    */
   createStreamObservableEntry(
-    key: string,
+    uuid: string,
   ): Observable<StreamObservableInterface> {
     const observableEntry = {
-      key: key,
+      key: uuid,
       observable: new Observable<StreamObservableInterface>((observer) => {
-        observer.next({ data: { domain: key, isCompleted: false } });
-        setInterval(() => {
-          observer.next({ data: { domain: key, isCompleted: true } });
-          observer.complete();
-        }, 5000);
+        this.reportService.getReportOfUiid(
+          uuid,
+          (result: StreamObservableInterface) => {
+            observer.next(result);
+            if (result.data.isCompleted) observer.complete();
+          },
+          (error: StreamObservableInterface) => {
+            observer.next(error);
+          },
+        );
       }).pipe(share()),
     };
     this.streamObservableArray.push(observableEntry);
