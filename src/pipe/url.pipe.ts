@@ -13,14 +13,14 @@ const isValidDomain = require('is-valid-domain');
  */
 export class UrlPipe implements PipeTransform<string, string> {
   transform(value: string, metadata: ArgumentMetadata): string {
-    // if a domain we add prefix
-    if (isValidDomain(value)) {
-      value = 'http://' + value;
+    // if starts by scheme
+    const match = value.match(/^http(s)?:\/\/([0-9a-z.-_]+)$/);
+    if (match) {
+      value = value.replace(/http(s)?:\/\//, '');
     }
-    // check if valid URL
-    const match = value.match(/^http:\/\/([0-9a-z.-_]+)$/);
-    if (!(match && isValidDomain(match[1]))) {
-      throw new BadRequestException('Invalid URL');
+    // check if valid domain
+    if (!isValidDomain(value)) {
+      throw new BadRequestException('Invalid link');
     }
     return value;
   }
