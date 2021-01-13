@@ -23,7 +23,7 @@ export class NavigatorService {
     puppeteer
       .launch({
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        headless: false,
+        headless: true,
       })
       .then((browser) => {
         this.browser = browser;
