@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/baudev/gdpr-checker/develop/banner.png?token=AHDG5RTLPI22C722OHQY2CLABDIXE" alt="Banner"/>
-</p>
+![banner](banner.png)
 
 This repository contains the code of a backend trying to identify the sites respecting the GDPR or not.
 An instance of this server is available at https://gdpr-checker.herokuapp.com/ 
