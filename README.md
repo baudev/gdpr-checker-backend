@@ -66,6 +66,7 @@ npm install
 ```
 
 ## TODO
+- [ ] Create a release (with master branch, database migrations...)
 - [ ] Clean the code
 - [ ] Write tests
 - [ ] Implement more complex logic to detect non GDPR compliant websites
