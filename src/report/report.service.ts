@@ -4,12 +4,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Report } from './report.entity';
 import { Repository } from 'typeorm';
 import { NavigatorService } from '../navigator/navigator.service';
+import { Url } from '../url/url.entity';
 
 @Injectable()
 export class ReportService {
   constructor(
     @InjectRepository(Report)
     private reportRepository: Repository<Report>,
+    @InjectRepository(Url)
+    private urlRepository: Repository<Url>,
     private navigatorService: NavigatorService,
   ) {}
 
@@ -39,33 +42,34 @@ export class ReportService {
         // report is recent
         resolve({ data: { percentage: 100, report: report } });
       } else {
-        // need to create a report
-        resolve({
-          data: {
-            percentage: 20,
-            status: 'Need to create a new report...',
-            report: report,
-          },
-        });
-
         // we delete the previous URL
-        // TODO check why url stay in db
-        report.urls = [];
-        this.reportRepository.save(report);
+        this.urlRepository.remove(report.urls).then(() => {
+          report.urls = [];
+          this.reportRepository.save(report);
 
-        this.navigatorService.analyzeWebsite(
-          report,
-          (result) => {
-            if (result.data.percentage === 100) {
-              result.data.report.updatedAt = new Date();
-              this.reportRepository.save(result.data.report);
-            }
-            resolve(result);
-          },
-          (error) => {
-            reject(error);
-          },
-        );
+          // need to create a report
+          resolve({
+            data: {
+              percentage: 20,
+              status: 'Need to create a new report...',
+              report: report,
+            },
+          });
+
+          this.navigatorService.analyzeWebsite(
+            report,
+            (result) => {
+              if (result.data.percentage === 100) {
+                result.data.report.updatedAt = new Date();
+                this.reportRepository.save(result.data.report);
+              }
+              resolve(result);
+            },
+            (error) => {
+              reject(error);
+            },
+          );
+        });
       }
     });
   }
