@@ -40,7 +40,7 @@ export class StreamService {
           uuid,
           (result: StreamObservableInterface) => {
             observer.next(result);
-            if (result.data.isCompleted) observer.complete();
+            if (result.data.percentage === 100) observer.complete();
           },
           (error: StreamObservableInterface) => {
             observer.next(error);

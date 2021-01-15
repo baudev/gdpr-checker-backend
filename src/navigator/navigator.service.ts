@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
-import { Browser } from 'puppeteer';
+import { Browser, Cookie as PuppeteerCookie } from 'puppeteer';
 import { Url } from '../url/url.entity';
 import { Cookie } from '../cookie/cookie.entity';
 import * as dns from 'dns';
@@ -22,8 +22,9 @@ export class NavigatorService {
   private launchBrowser() {
     puppeteer
       .launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        headless: true,
+        executablePath:
+          'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+        headless: false,
       })
       .then((browser) => {
         this.browser = browser;
@@ -50,7 +51,7 @@ export class NavigatorService {
     await this.waitForBrowser();
     resolve1({
       data: {
-        isCompleted: false,
+        percentage: 40,
         status: 'Requesting the page...',
         report: report,
       },
@@ -59,7 +60,7 @@ export class NavigatorService {
     if (pageNumber > 10) {
       reject1({
         data: {
-          isCompleted: true,
+          percentage: 100,
           status: 'Too much usage. Try later please.',
         },
       });
@@ -81,7 +82,7 @@ export class NavigatorService {
       } catch (e) {
         reject1({
           data: {
-            isCompleted: true,
+            percentage: 100,
             status: 'Impossible to load the given URL',
           },
         });
@@ -95,53 +96,30 @@ export class NavigatorService {
     const isHTTPS = /^https:\/\//.test(page.url());
 
     page.close();
-    // TODO move this part
+
+    // TODO check multiple urls and not only one
     const urlEntity = new Url(report.domain, isHTTPS);
     report.addUrl(urlEntity);
+
+    let percentage = 40;
+    const increasePercentageForEachCookie =
+      (100 - percentage) /
+      (cookiesArray.cookies.length !== 0 ? cookiesArray.cookies.length : 1);
+
     for (const cookie of cookiesArray.cookies) {
-      const cookieEntity = new Cookie(cookie.name);
-      cookieEntity.domain = this.extractCookieDomain(cookie.domain);
-      const cookieInformation = this.cookieService.getCookieInformationByName(
-        cookieEntity.name,
-      );
-      if (cookieInformation !== null) {
-        cookieEntity.type = cookieInformation.Category;
-      }
-      try {
-        cookieEntity.IP = await this.getIPFromDomain(cookieEntity.domain);
-        const geo = geoip.lookup(cookieEntity.IP);
-        if (geo != null) {
-          cookieEntity.hasAdequateLevelOfProtection =
-            geo.eu === '1' ||
-            [
-              'AD',
-              'AR',
-              'CA',
-              'FO',
-              'GG',
-              'IL',
-              'IM',
-              'JP',
-              'JE',
-              'NZ',
-              'CH',
-              'UY',
-            ].includes(geo.country); // https://ec.europa.eu/info/law/law-topic/data-protection/international-dimension-data-protection/adequacy-decisions_en
-          const countryLookup = lookup.byIso(geo.country);
-          if (countryLookup != null) {
-            cookieEntity.country = countryLookup.country;
-          }
-        }
-      } catch (e) {
-        // error while getting IP address
-      }
+      const cookieEntity = await this.getInformationFromCookie(cookie);
       urlEntity.addCookie(cookieEntity);
+      percentage = percentage + increasePercentageForEachCookie;
+      resolve1({ data: { percentage: percentage, report: report } });
     }
-    resolve1({ data: { isCompleted: true, report: report } });
+    resolve1({ data: { percentage: 100, report: report } });
   }
 
-  // TODO Doc
-
+  /**
+   * Gets IP from a domain
+   * @param domain
+   * @private
+   */
   private getIPFromDomain(domain: string): Promise<string | null> {
     return new Promise((resolve, reject) => {
       dns.lookup(domain, (err, address, family) => {
@@ -151,9 +129,88 @@ export class NavigatorService {
     });
   }
 
-  private extractCookieDomain(url: string) {
+  /**
+   * Extracts the domain of a cookie domain
+   * @param url
+   * @private
+   */
+  private static extractCookieDomain(url: string) {
     const regex = /([a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i;
     const match = regex.exec(url);
     return match[1];
+  }
+
+  /**
+   * Creates a Cookie from the browser cookie information and database
+   * @param cookie
+   * @private
+   */
+  private async getInformationFromCookie(
+    cookie: PuppeteerCookie,
+  ): Promise<Cookie> {
+    return new Promise(async (resolve) => {
+      // Get cookie name
+      const cookieEntity = new Cookie(cookie.name);
+      // Extract the cookie domain
+      cookieEntity.domain = NavigatorService.extractCookieDomain(cookie.domain);
+
+      // Search in database information on this cookie
+      const cookieInformation = this.cookieService.getCookieInformationByName(
+        cookieEntity.name,
+      );
+
+      // If there is information
+      if (cookieInformation !== null) {
+        cookieEntity.provider = cookieInformation.Platform;
+        cookieEntity.type = cookieInformation.Category;
+        cookieEntity.description = cookieInformation.Description;
+        cookieEntity.retentionPeriod = cookieInformation['Retention period'];
+        cookieEntity.termsLink =
+          cookieInformation['User Privacy & GDPR Rights Portals'];
+      }
+      try {
+        // Gets IP of the related domain
+        cookieEntity.IP = await this.getIPFromDomain(cookieEntity.domain);
+        // Gets location information concerning the IP
+        const geo = geoip.lookup(cookieEntity.IP);
+        if (geo != null) {
+          // Checks if data is authorized to go outside UE
+          cookieEntity.countryCodeIso = geo.country;
+          cookieEntity.hasAdequateLevelOfProtection =
+            geo.eu === '1' ||
+            NavigatorService.authorizedCountriesOutOfUE().includes(geo.country);
+          // Gets the country name
+          const countryLookup = lookup.byIso(geo.country);
+          if (countryLookup != null) {
+            cookieEntity.country = countryLookup.country;
+          }
+        }
+      } catch (e) {
+        // error while getting IP address
+      }
+      return resolve(cookieEntity);
+    });
+  }
+
+  /**
+   * The list of countries that EU considers as offering an adequate level of data protection.
+   * https://ec.europa.eu/info/law/law-topic/data-protection/international-dimension-data-protection/adequacy-decisions_en
+   * @private
+   */
+  private static authorizedCountriesOutOfUE(): string[] {
+    return [
+      'AD', // Andorra
+      'AR', // Argentina
+      'CA', // Canada
+      'FO', // Faroe Islands
+      'GG', // Guernsey
+      'IL', // Israel
+      'IM', // Isle of Man
+      'JP', // Japan
+      'JE', // Jersey
+      'NZ', // New Zealand
+      'CH', // Switzerland
+      'UY', // Uruguay
+    ];
   }
 }

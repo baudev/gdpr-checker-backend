@@ -19,13 +19,13 @@ export class ReportService {
     reject: (error: StreamObservableInterface) => void,
   ): void {
     resolve({
-      data: { isCompleted: false, status: 'Searching in database...' },
+      data: { percentage: 10, status: 'Searching in database...' },
     });
     // check in database if the results already exists
     this.reportRepository.findOne({ uuid: uiid }).then((report) => {
       if (report === undefined) {
         reject({
-          data: { isCompleted: true, status: 'Invalid request' },
+          data: { percentage: 100, status: 'Invalid request' },
           type: 'error',
         });
         return;
@@ -37,12 +37,12 @@ export class ReportService {
         report.urls.length > 0
       ) {
         // report is recent
-        resolve({ data: { isCompleted: true, report: report } });
+        resolve({ data: { percentage: 100, report: report } });
       } else {
         // need to create a report
         resolve({
           data: {
-            isCompleted: false,
+            percentage: 20,
             status: 'Need to create a new report...',
             report: report,
           },
@@ -56,7 +56,7 @@ export class ReportService {
         this.navigatorService.analyzeWebsite(
           report,
           (result) => {
-            if (result.data.isCompleted) {
+            if (result.data.percentage === 100) {
               result.data.report.updatedAt = new Date();
               this.reportRepository.save(result.data.report);
             }
