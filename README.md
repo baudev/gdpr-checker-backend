@@ -71,6 +71,7 @@ npm install
 - [ ] Write tests
 - [ ] Implement more complex logic to detect non GDPR compliant websites
 - [ ] Review the database implementation
+- [ ] Scan several urls for each domain
 
 ## CREDITS
 
