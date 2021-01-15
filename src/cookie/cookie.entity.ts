@@ -27,6 +27,9 @@ export class Cookie {
   @Column({ nullable: true })
   type: CookieOpenDatabaseCategoryEnum | undefined;
 
+  @Column({ type: 'text' })
+  description: string;
+
   @Column()
   domain: string;
 
@@ -38,6 +41,15 @@ export class Cookie {
 
   @Column({ nullable: true })
   country: string;
+
+  @Column()
+  countryCodeIso: string;
+
+  @Column()
+  retentionPeriod: string;
+
+  @Column()
+  termsLink: string;
 
   @ManyToMany(() => Url, (url) => url.cookies)
   urls: Url[];
