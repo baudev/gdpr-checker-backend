@@ -22,9 +22,8 @@ export class NavigatorService {
   private launchBrowser() {
     puppeteer
       .launch({
-        executablePath:
-          'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-        headless: false,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        headless: true,
       })
       .then((browser) => {
         this.browser = browser;

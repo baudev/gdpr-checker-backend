@@ -5,8 +5,9 @@ import { Report } from './report/report.entity';
 import { Url } from './url/url.entity';
 import { Cookie } from './cookie/cookie.entity';
 import { join } from 'path';
-const environment = process.env.NODE_ENV || '';
-const data: any = dotenv.parse(fs.readFileSync(`${environment}.env`));
+// TODO handle different env
+// const environment = process.env.NODE_ENV || '';
+const data: any = dotenv.parse(fs.readFileSync(`.env`));
 
 export const config: TypeOrmModuleOptions = {
   type: 'postgres',
