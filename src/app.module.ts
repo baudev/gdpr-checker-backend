@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ReportController } from './report/report.controller';
 import { ConfigModule } from '@nestjs/config';
 import { StreamService } from './stream/stream.service';
-import { WebsitesController } from './websites/websites.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Report } from './report/report.entity';
 import { Url } from './url/url.entity';
@@ -15,10 +14,10 @@ import { config } from './ormconfig';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRootAsync(config),
+    TypeOrmModule.forRoot(config),
     TypeOrmModule.forFeature([Report, Url, Cookie]),
   ],
-  controllers: [ReportController, WebsitesController],
+  controllers: [ReportController],
   providers: [StreamService, ReportService, NavigatorService, CookieService],
 })
 export class AppModule {}

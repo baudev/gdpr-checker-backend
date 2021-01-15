@@ -14,7 +14,9 @@ import { StreamObservableInterface } from '../stream/streamObservable.interface'
 import { InjectRepository } from '@nestjs/typeorm';
 import { Report } from './report.entity';
 import { Repository } from 'typeorm';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('report')
 @Controller('report')
 export class ReportController {
   constructor(
@@ -24,10 +26,21 @@ export class ReportController {
     private reportRepository: Repository<Report>,
   ) {}
 
+  @ApiBody({
+    // Issue https://github.com/nestjs/swagger/issues/669
+    schema: {
+      type: 'object',
+      properties: {
+        domain: {
+          type: 'string',
+        },
+      },
+    },
+  })
   @Post()
   async createReport(
     @Body('domain', new UrlPipe()) domain: string,
-  ): Promise<{ uuid: string, domain: string, updatedAt: Date }> {
+  ): Promise<{ uuid: string; domain: string; updatedAt: Date }> {
     // we search if the domain has an existing entry in database
     let report = await this.reportRepository.findOne({ domain: domain });
     if (report === undefined) {
