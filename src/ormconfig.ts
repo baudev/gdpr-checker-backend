@@ -17,6 +17,7 @@ export const config: TypeOrmModuleOptions = {
   password: process.env.DATABASE_PASSWORD || data.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME || data.DATABASE_NAME,
   migrationsTableName: 'migration_table',
+  migrationsRun: true,
   migrations: [join(__dirname, '**', '*.ts')],
   cli: {
     migrationsDir: 'src/migration',
