@@ -1,20 +1,18 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddsInfoToCookies1610724854644 implements MigrationInterface {
-  name = 'AddsInfoToCookies1610724854644';
+export class AddsInfoToCookies1610728776042 implements MigrationInterface {
+  name = 'AddsInfoToCookies1610728776042';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`ALTER TABLE "cookie" ADD "description" text`);
     await queryRunner.query(
-      `ALTER TABLE "cookie" ADD "description" text NOT NULL`,
+      `ALTER TABLE "cookie" ADD "countryCodeIso" character varying`,
     );
     await queryRunner.query(
-      `ALTER TABLE "cookie" ADD "countryCodeIso" character varying NOT NULL`,
+      `ALTER TABLE "cookie" ADD "retentionPeriod" character varying`,
     );
     await queryRunner.query(
-      `ALTER TABLE "cookie" ADD "retentionPeriod" character varying NOT NULL`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "cookie" ADD "termsLink" character varying NOT NULL`,
+      `ALTER TABLE "cookie" ADD "termsLink" character varying`,
     );
   }
 
