@@ -39,12 +39,12 @@ npm install
 *Returns:*
 ```json
 {
-   "isCompleted":true,
+   "percentage":100,
    "report":{
       "domain":"google.com",
-      "uuid":"c8158760-3eba-4b4f-9bae-03186cab005f",
-      "createdAt":"2021-01-01T00:00:00.000Z",
-      "updatedAt":"2021-01-01T00:00:00.000Z",
+      "uuid":"c69d4eae-6e5b-45d6-8a79-6f5ac3cbfb73",
+      "createdAt":"2021-01-15T21:48:53.260Z",
+      "updatedAt":"2021-01-16T11:22:27.085Z",
       "urls":[
          {
             "path":"google.com",
@@ -53,8 +53,13 @@ npm install
                {
                   "name":"NID",
                   "domain":"google.com",
+                  "provider":"Google",
                   "type":"Marketing",
-                  "IP":"74.125.193.113",
+                  "description":"This cookies is used to collect website statistics and track conversion rates and Google ad personalisation",
+                  "retentionPeriod":"1 year",
+                  "termsLink":"https://privacy.google.com/take-control.html",
+                  "IP":"74.125.193.139",
+                  "countryCodeIso":"US",
                   "hasAdequateLevelOfProtection":false,
                   "country":"United States"
                }
