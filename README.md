@@ -3,7 +3,13 @@
 This repository contains the code of a backend trying to identify the sites respecting the GDPR or not.
 An instance of this server is available at https://gdpr-checker.herokuapp.com/ 
 
-**An interface demo is available at https://baudev.github.io/gdpr-checker-frontend/**
+
+<div style="text-align:center"></div>
+<p align="center">
+    <img src="https://user-images.githubusercontent.com/29781702/122070676-7562f300-cdf6-11eb-970f-7f286393e510.png" height="500px" /><br>
+    <b>An interface demo is available at https://baudev.github.io/gdpr-checker-frontend/</b>
+</p>
+
 
 ## Installation
 
